@@ -19,10 +19,37 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
+const ProductButton = (product) => {
+  return(
+    <div className='product_button'>
+      <p className='product--name'>{ product.name }</p>
+      <p className='product--price'>{ product.price }</p>
+      <style jsx>{`
+        .product_button {
+          width: 100px;
+          height: 100px;
+          display: inline-block;
+          border: 1px solid;
+          padding: 10px;
+          margin: 8px;
+        }
+    `}</style>
+    </div>
+  )
+}
+
 const Index = ({ products }) => {
   return (
     <div>
-      <p>{`${JSON.stringify(products)}`}</p>
+      <div className='column__products'>
+        {products.map(ProductButton) }
+      </div>
+      <style jsx>{`
+        .column__products {
+          width: 70%;
+          display: inline-block;
+        }
+    `}</style>
     </div>
   )
 };
