@@ -19,31 +19,27 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-const Index = () => {
-  const [ products, setProducts ] = useState([]);
-
-  useEffect(() => {
-
-
-    const db = firebase.firestore();
-    const products = db.collection("products").get()
-      .then(function(querySnapshot) {
-        const ps = []
-        querySnapshot.forEach(doc => ps.push(doc.data()))
-        setProducts(ps)
-      })
-      .catch(function(error) {
-          console.log("Error getting documents: ", error);
-      });
-
-
-  }, [])
-  console.log(products);
+const Index = ({ products }) => {
   return (
-      <div>
-        <p>{`${JSON.stringify(products)}`}</p>
-      </div>
+    <div>
+      <p>{`${JSON.stringify(products)}`}</p>
+    </div>
   )
 };
 
-export default Index;
+Index.getInitialProps = async ({ req }) => {
+  const db = firebase.firestore()
+  const products = await db.collection("products").get()
+    .then(function(querySnapshot) {
+      const ps = []
+      querySnapshot.forEach(doc => ps.push(doc.data()))
+      return ps
+    })
+    .catch(function(error) {
+      console.log("Error getting documents: ", error)
+    });
+  console.info(products)
+  return { products }
+};
+
+export default Index

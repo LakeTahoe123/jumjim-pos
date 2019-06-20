@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "express": "^4.17.1",
     "firebase": "^6.2.0",
     "next": "^8.1.0",
     "next-offline": "^4.0.2",
@@ -11,8 +12,8 @@
     "react-dom": "^16.8.6"
   },
   "scripts": {
-    "dev": "next",
+    "dev": "node server.js",
     "build": "next build",
-    "start": "next start"
+    "start": "NODE_ENV=production node server.js"
   }
 }
