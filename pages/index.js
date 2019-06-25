@@ -1,4 +1,4 @@
-import React, {useEffect ,useState} from 'react';
+import React from 'react';
 
 // Firebase App (the core Firebase SDK) is always required and must be listed first
 import * as firebase from "firebase/app";
@@ -21,7 +21,7 @@ if (!firebase.apps.length) {
 
 const ProductButton = (product) => {
   return(
-    <div className='product_button'>
+    <div className='product_button' key={product.name}>
       <p className='product--name'>{ product.name }</p>
       <p className='product--price'>{ product.price }</p>
       <style jsx>{`
