@@ -1,4 +1,4 @@
-import React, {useEffect ,useState} from 'react';
+import React from 'react';
 
 // Firebase App (the core Firebase SDK) is always required and must be listed first
 import * as firebase from "firebase/app";
@@ -19,31 +19,54 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-const Index = () => {
-  const [ products, setProducts ] = useState([]);
+const ProductButton = (product) => {
+  return(
+    <div className='product_button' key={product.name}>
+      <p className='product--name'>{ product.name }</p>
+      <p className='product--price'>{ product.price }</p>
+      <style jsx>{`
+        .product_button {
+          width: 100px;
+          height: 100px;
+          display: inline-block;
+          border: 1px solid;
+          padding: 10px;
+          margin: 8px;
+        }
+    `}</style>
+    </div>
+  )
+}
 
-  useEffect(() => {
-
-
-    const db = firebase.firestore();
-    const products = db.collection("products").get()
-      .then(function(querySnapshot) {
-        const ps = []
-        querySnapshot.forEach(doc => ps.push(doc.data()))
-        setProducts(ps)
-      })
-      .catch(function(error) {
-          console.log("Error getting documents: ", error);
-      });
-
-
-  }, [])
-  console.log(products);
+const Index = ({ products }) => {
   return (
-      <div>
-        <p>{`${JSON.stringify(products)}`}</p>
+    <div>
+      <div className='column__products'>
+        {products.map(ProductButton) }
       </div>
+      <style jsx>{`
+        .column__products {
+          width: 70%;
+          display: inline-block;
+        }
+    `}</style>
+    </div>
   )
 };
 
-export default Index;
+Index.getInitialProps = async ({ req }) => {
+  const db = firebase.firestore()
+  const products = await db.collection("products").get()
+    .then(function(querySnapshot) {
+      const ps = []
+      querySnapshot.forEach(doc => ps.push(doc.data()))
+      return ps
+    })
+    .catch(function(error) {
+      console.log("Error getting documents: ", error)
+    });
+  console.info(products)
+  return { products }
+};
+
+export default Index
