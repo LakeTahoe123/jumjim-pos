@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { createContext, useContext, useReducer } from 'react'
+
+import sumBy from 'lodash/sumBy'
+import find from 'lodash/find'
+import get from 'lodash/get'
 
 // Firebase App (the core Firebase SDK) is always required and must be listed first
-import * as firebase from "firebase/app";
+import * as firebase from "firebase/app"
 
 // Add the Firebase products that you want to use
-import "firebase/auth";
-import "firebase/firestore";
+import "firebase/auth"
+import "firebase/firestore"
 
 const firebaseConfig = {
   apiKey: "AIzaSyBi1o8r_iZbXGdiFl5bjNWqWs1pGgAPGYk",
@@ -13,60 +17,65 @@ const firebaseConfig = {
   databaseURL: "https://jumjim-pos.firebaseio.com",
   projectId: "jumjim-pos",
   storageBucket: "jumjim-pos.appspot.com",
-};
+}
 
 if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
+  firebase.initializeApp(firebaseConfig)
 }
 
-const ProductButton = (product) => {
-  return(
-    <div className='product_button' key={product.name}>
-      <p className='product--name'>{ product.name }</p>
-      <p className='product--price'>{ product.price }</p>
-      <style jsx>{`
-        .product_button {
-          width: 100px;
-          height: 100px;
-          display: inline-block;
-          border: 1px solid;
-          padding: 10px;
-          margin: 8px;
-        }
-    `}</style>
-    </div>
-  )
-}
+import POSContext from '../components/POSContext'
+import ProductButton from '../components/ProductButton'
+import cartReducer, { initCart } from '../reducers/cartReducer'
 
 const Index = ({ products }) => {
+  const [cart, cartDispatch] = useReducer(cartReducer, initCart)
   return (
-    <div>
-      <div className='column__products'>
-        {products.map(ProductButton) }
+    <POSContext.Provider value={{cart, cartDispatch, products}}>
+      <div className='products'>
+        { products.map(product => {
+          const quantity = get(
+            find(cart.products, ['id', product.id])
+          , 'quantity', 0)
+          return <ProductButton key={`product-btn-${product.id}`} product={product} quantity={quantity}/>
+         }) }
+      </div>
+      <div className='cart'>
+        <ul>
+          { cart.products.map(product => (
+            <li key={`cart-product-${product.id}`}>{ product.name } - { product.quantity }</li>
+          ))}
+        </ul>
+        <p>ยอดรวม: { sumBy(cart.products, product => product.price * product.quantity) }</p>
       </div>
       <style jsx>{`
-        .column__products {
-          width: 70%;
-          display: inline-block;
+        .products {
+          width: 70%
+          display: inline-block
+        }
+        .cart {
+          width: 30%
+          display: inline-block
         }
     `}</style>
-    </div>
+    </POSContext.Provider>
   )
-};
+}
 
 Index.getInitialProps = async ({ req }) => {
   const db = firebase.firestore()
   const products = await db.collection("products").get()
-    .then(function(querySnapshot) {
+    .then(querySnapshot => {
       const ps = []
-      querySnapshot.forEach(doc => ps.push(doc.data()))
+      querySnapshot.forEach(doc => (
+        ps.push({ id: doc.id, ...doc.data() })
+      ))
       return ps
     })
-    .catch(function(error) {
+    .catch(error => {
       console.log("Error getting documents: ", error)
-    });
+    })
   console.info(products)
   return { products }
-};
+}
 
 export default Index
