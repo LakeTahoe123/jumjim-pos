@@ -36,13 +36,18 @@ const Index = ({ products }) => {
           const quantity = get(
             find(cart.products, ['id', product.id])
           , 'quantity', 0)
-          return <ProductButton key={`product-btn-${product.id}`} product={product} quantity={quantity}/>
+          return <ProductButton
+            key={`product-btn-${product.id}-${product.quantity}`}
+            product={product}
+            quantity={quantity} />
          }) }
       </div>
       <div className='cart'>
         <ul>
           { cart.products.map(product => (
-            <li key={`cart-product-${product.id}`}>{ product.name } - { product.quantity }</li>
+            <li key={`cart-product-${product.id}-${product.quantity}`}>
+              { product.name } - { product.quantity }
+            </li>
           ))}
         </ul>
         <p>ยอดรวม: { sumBy(cart.products, product => product.price * product.quantity) }</p>
